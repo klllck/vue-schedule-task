@@ -3,7 +3,6 @@ import DayOfWeek from "./DayOfWeek.vue";
 import Modal from "./Modal.vue";
 import { useScheduleStore } from "../store/scheduleStore";
 import { useModalStore } from "../store/modalStore";
-import { ref } from "vue";
 
 const scheduleStore = useScheduleStore();
 const modalStore = useModalStore();
@@ -12,7 +11,7 @@ const modalStore = useModalStore();
 <template>
   <div class="schedule">
     <div class="schedule__info" v-if="scheduleStore.days.length === 0">
-      На данный момент ничего не запланированно
+      В данный момент расписание пустое
     </div>
     <DayOfWeek v-for="day in scheduleStore.sortedDays" :key="day.id" :day="day" />
     <Modal v-model:isOpen="modalStore.modalVisible" />
@@ -30,7 +29,7 @@ const modalStore = useModalStore();
     text-align: center;
     font-size: 2rem;
     font-weight: 600;
-    margin-top: 20px; 
+    margin-top: 20px;
   }
 }
 </style>

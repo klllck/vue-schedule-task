@@ -25,8 +25,8 @@ const props = defineProps({
     <div class="card-time">{{ card.timeStampFrom }} - {{ card.timeStampTo }}</div>
     <div v-if="card.clientName === '' && card.reasonDesc === ''" class="card-empty"></div>
     <div v-else class="card-body">
-      <div class="card-body__name">Клиент: {{ card.clientName }}</div>
-      <div class="card-body__text">Причина: {{ card.reasonDesc }}</div>
+      <p class="card-body__name">Клиент: {{ card.clientName }}</p>
+      <p class="card-body__text">Причина: {{ card.reasonDesc }}</p>
     </div>
   </div>
 </template>
@@ -45,12 +45,19 @@ const props = defineProps({
   &-body {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100px;
+    min-height: 120px;
+    max-height: 260px;
     width: 100%;
     padding: 0.3rem;
+    max-width: 290px;
+    overflow-y: auto;
     background-color: pink;
+
+    &__text {
+      white-space: normal;
+      word-break: break-all;
+    }
   }
 
   &-empty::before {

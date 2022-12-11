@@ -9,6 +9,7 @@ const scheduleStore = useScheduleStore();
 const cardStore = useCardStore();
 
 const choosenDay = ref(scheduleStore.today);
+const errorMessage = ref("");
 
 const cardData = ref({
   dayOfWeek: "",
@@ -19,16 +20,8 @@ const cardData = ref({
 });
 
 const addNewCard = () => {
-  if (
-    cardData.value.timeStampFrom.split(":")[0] * 60 +
-      cardData.value.timeStampFrom.split(":")[1] * 1 >=
-    cardData.value.timeStampTo.split(":")[0] * 60 +
-      cardData.value.timeStampTo.split(":")[1] * 1
-  ) {
-    console.log("Time input error");
-    return;
-  }
-
+  inputDataValidation();
+  if (errorMessage.value !== "") return;
   cardData.value.dayOfWeek = choosenDay.value;
 
   let currentDay = null;
@@ -66,7 +59,27 @@ const hideModal = () => {
   cardData.value.clientName = "";
   cardData.value.reasonDesc = "";
   cardStore.selectedCard = null;
+  errorMessage.value = "";
   emit("update:isOpen", false);
+};
+
+const inputDataValidation = () => {
+  if (
+    cardData.value.timeStampFrom.split(":")[0] * 60 +
+      cardData.value.timeStampFrom.split(":")[1] * 1 >=
+    cardData.value.timeStampTo.split(":")[0] * 60 +
+      cardData.value.timeStampTo.split(":")[1] * 1
+  ) {
+    errorMessage.value = "Укажите правильное время!";
+  }
+  if (
+    (cardData.value.clientName === "" && cardData.value.reasonDesc === "") ||
+    (cardData.value.clientName !== "" && cardData.value.reasonDesc !== "")
+  ) {
+    errorMessage.value = "";
+  } else {
+    errorMessage.value = "Все поля должны быть заполнены, либо пустые";
+  }
 };
 
 const props = defineProps({
@@ -81,76 +94,95 @@ const emit = defineEmits(["isOpen"]);
 
 <template>
   <div v-if="isOpen" class="modal">
-    <div v-if="cardStore.selectedCard" @click.stop class="modal-body">
-      <div class="modal-body-top">
-        <input
-          type="date"
-          class="modal-input__date"
-          v-model="cardStore.selectedCard.dayOfWeek"
-          :min="scheduleStore.today"
-        />
-        <div class="modal-body-top-time">
+    <div class="modal__error" v-if="errorMessage !== ''">{{ errorMessage }}</div>
+    <form v-if="cardStore.selectedCard" @submit.prevent="hideModal">
+      <div @click.stop class="modal-body">
+        <div class="modal-body-top">
           <input
-            v-model="cardStore.selectedCard.timeStampFrom"
-            type="time"
-            class="modal-input__time"
+            type="date"
+            class="modal-input__date"
+            v-model="cardStore.selectedCard.dayOfWeek"
+            :min="scheduleStore.today"
+            :required="false"
           />
-          <div>-</div>
+          <div class="modal-body-top-time">
+            <input
+              v-model="cardStore.selectedCard.timeStampFrom"
+              type="time"
+              class="modal-input__time"
+              required
+            />
+            <div>-</div>
+            <input
+              v-model="cardStore.selectedCard.timeStampTo"
+              type="time"
+              class="modal-input__time"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-body-middle">
+          <label>Клиент ФИО</label>
           <input
-            v-model="cardStore.selectedCard.timeStampTo"
-            type="time"
-            class="modal-input__time"
+            v-model="cardStore.selectedCard.clientName"
+            type="text"
+            class="modal-input__text"
+          />
+          <label>Причина обращения</label>
+          <textarea
+            v-model="cardStore.selectedCard.reasonDesc"
+            type="text"
+            class="modal-input__text"
           />
         </div>
+        <div class="modal-body-bottom">
+          <button type="submit">Подтвердить</button>
+          <button @click="removeCard" v-if="adminStore.isAuth" class="btn-delete">
+            Удалить
+          </button>
+          <button @click="hideModal">Отмена</button>
+        </div>
       </div>
-      <div class="modal-body-middle">
-        <label>Клиент ФИО</label>
-        <input
-          v-model="cardStore.selectedCard.clientName"
-          type="text"
-          class="modal-input__text"
-        />
-        <label>Причина обращения</label>
-        <input
-          v-model="cardStore.selectedCard.reasonDesc"
-          type="text"
-          class="modal-input__text"
-        />
-      </div>
-      <div class="modal-body-bottom">
-        <button @click="hideModal">Подтвердить</button>
-        <button @click="removeCard" v-if="adminStore.isAuth" class="btn-delete">
-          Удалить
-        </button>
-        <button @click="hideModal">Отмена</button>
-      </div>
-    </div>
+    </form>
 
-    <div v-else @click.stop class="modal-body">
-      <div class="modal-body-top">
-        <input
-          type="date"
-          class="modal-input__date"
-          v-model="choosenDay"
-          :min="scheduleStore.today"
-        />
-        <div class="modal-body-top-time">
-          <input v-model="cardData.timeStampFrom" type="time" class="modal-input__time" />
-          <div>-</div>
-          <input v-model="cardData.timeStampTo" type="time" class="modal-input__time" />
+    <form v-else @submit.prevent="addNewCard">
+      <div @click.stop class="modal-body">
+        <div class="modal-body-top">
+          <input
+            type="date"
+            class="modal-input__date"
+            v-model="choosenDay"
+            :min="scheduleStore.today"
+            required
+          />
+          <div class="modal-body-top-time">
+            <input
+              v-model="cardData.timeStampFrom"
+              type="time"
+              class="modal-input__time"
+              required
+            />
+            <div>-</div>
+            <input
+              v-model="cardData.timeStampTo"
+              type="time"
+              class="modal-input__time"
+              required
+            />
+          </div>
+        </div>
+        <div class="modal-body-middle">
+          <label>Клиент ФИО</label>
+          <input v-model="cardData.clientName" type="text" class="modal-input__text" />
+          <label>Причина обращения</label>
+          <textarea v-model="cardData.reasonDesc" type="text" class="modal-input__text" />
+        </div>
+        <div class="modal-body-bottom">
+          <button type="submit">Создать</button>
+          <button @click="hideModal">Отмена</button>
         </div>
       </div>
-      <div class="modal-body-middle">
-        <label>Клиент ФИО</label>
-        <input v-model="cardData.clientName" type="text" class="modal-input__text" />
-        <label>Причина обращения</label>
-        <input v-model="cardData.reasonDesc" type="text" class="modal-input__text" />
-      </div>
-      <div class="modal-body-bottom">
-        <button @click="addNewCard">Создать</button>
-        <button @click="hideModal">Отмена</button>
-      </div>
-    </div>
+    </form>
   </div>
 </template>
 
@@ -166,7 +198,18 @@ const emit = defineEmits(["isOpen"]);
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+
+  &__error {
+    font-size: 1.4rem;
+    text-align: center;
+    font-weight: 600;
+    background-color: #fff;
+    color: crimson;
+    padding: 1.4rem;
+    width: 490px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
 
   &-body {
     display: flex;
@@ -218,10 +261,12 @@ const emit = defineEmits(["isOpen"]);
     &__time {
       padding: 0.3rem;
       width: 100px;
+      font-size: 1rem;
     }
 
     &__text {
       padding: 0.3rem;
+      font-size: 1rem;
     }
   }
 }
