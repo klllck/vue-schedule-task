@@ -25,25 +25,19 @@ const dragStart = (e, day, card) => {
   cardStore.selectCard(card);
 };
 
-const dragLeave = (e) => {
-  if (e.target.className === "card") {
-    e.target.style.boxShadow = "rgba(0, 0, 0, 0.16) 0px 3px 6px 1px";
-  }
-};
-
-const dragOver = (e) => {
-  if (e.target.className === "card") {
-    e.target.style.boxShadow = "0 6px 3px gray";
-  }
-};
+const dragOver = (e) => {};
 
 const swapCard = (e, targetCard) => {
-  let temp = {...targetCard};
+  let temp = { ...targetCard };
   targetCard.clientName = cardStore.selectedCard.clientName;
   targetCard.reasonDesc = cardStore.selectedCard.reasonDesc;
   cardStore.selectedCard.clientName = temp.clientName;
   cardStore.selectedCard.reasonDesc = temp.reasonDesc;
 };
+
+const check = (len) => {
+  // console.log(len);
+}
 
 const props = defineProps({
   day: {
@@ -55,7 +49,9 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="day">
+  {{ check(cardStore.sortedCards(day)) }}
+  <h2 v-if="!cardStore.sortedCards(day)">Ничего не найдено</h2>
+  <div v-else class="day">
     <div
       class="day-time"
       @click="editScheduleForThisDay"
@@ -73,7 +69,6 @@ const props = defineProps({
         draggable="true"
         @dragstart="dragStart($event, day, card)"
         @drop.stop="swapCard($event, card)"
-        @dragleave="dragLeave($event)"
         @dragover.prevent="dragOver($event)"
       />
     </div>

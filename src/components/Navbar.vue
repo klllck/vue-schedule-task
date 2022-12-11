@@ -1,12 +1,47 @@
 <script setup>
-import { ref } from "vue";
+import CustomSelect from "../components/UI/CustomSelect.vue";
+import { ref, watch } from "vue";
 import { useModalStore } from "../store/modalStore";
 import { useAdminStore } from "../store/adminStore";
+import { useScheduleStore } from "../store/scheduleStore";
+import { useCardStore } from "../store/cardStore";
 
 const adminStore = useAdminStore();
 const modalStore = useModalStore();
+const scheduleStore = useScheduleStore();
+const cardStore = useCardStore();
 
 const password = ref("");
+const daysFilterCondition = ref("");
+const cardsFilterCondition = ref("");
+
+const dayFilters = ref([
+  { value: "all", name: "Все дни" },
+  { value: "filled", name: "Только занятые дни" },
+  { value: "empty", name: "Только свободные дни" },
+]);
+
+const cardFilters = ref([
+  { value: "all", name: "Все слоты" },
+  { value: "filled", name: "Только занятые слоты" },
+  { value: "empty", name: "Только свободные слоты" },
+]);
+
+watch(
+  () => cardsFilterCondition,
+  (state) => {
+    cardStore.setFilterCondition(state.value);
+  },
+  { deep: true }
+);
+
+watch(
+  () => daysFilterCondition,
+  (state) => {
+    scheduleStore.setFilterCondition(state.value);
+  },
+  { deep: true }
+);
 
 const logout = () => {
   adminStore.logout();
@@ -19,6 +54,10 @@ const logout = () => {
     <a href="/">
       <p class="navbar__title">Schedule Task</p>
     </a>
+    <div class="navbar-filters">
+      <CustomSelect :options="cardFilters" v-model:condition="cardsFilterCondition" />
+      <CustomSelect :options="dayFilters" v-model:condition="daysFilterCondition" />
+    </div>
     <div class="navbar-pannel">
       <div v-if="adminStore.isAuth" class="navbar-pannel-admin">
         <button @click="modalStore.showModal">Добавить слот</button>
@@ -48,6 +87,15 @@ const logout = () => {
   align-items: center;
   padding: 0 4rem;
 
+  &-filters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 40%;
+    gap: 60px;
+  }
+
   &-pannel-admin {
     display: flex;
     height: 100%;
@@ -62,12 +110,12 @@ const logout = () => {
     align-items: center;
     justify-content: space-between;
     width: 300px;
+  }
 
-    &__password {
-      padding: 0.5em 1.1em;
-      font-size: 1.05rem;
-      width: 60%;
-    }
+  input {
+    padding: 0.5em 1.1em;
+    font-size: 1.05rem;
+    width: 60%;
   }
 
   &__title {

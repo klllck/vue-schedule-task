@@ -4,6 +4,7 @@ import { ref, watch } from "vue";
 export const useCardStore = defineStore("cardStore", () => {
   const cards = ref([]);
   const selectedCard = ref(null);
+  const cardsFilterCondition = ref("all");
 
   const cardsInLocalStorage = localStorage.getItem("cards");
   if (cardsInLocalStorage) {
@@ -17,10 +18,10 @@ export const useCardStore = defineStore("cardStore", () => {
     },
     { deep: true }
   );
-  
+
   const getCardById = (cardId) => {
     return cards.value.find((card) => card.id === cardId);
-  }
+  };
 
   const addCard = (card) => {
     cards.value.push(card);
@@ -34,8 +35,25 @@ export const useCardStore = defineStore("cardStore", () => {
     selectedCard.value = card;
   };
 
+  const setFilterCondition = (condition) => {
+    cardsFilterCondition.value = condition;
+  };
+
   const sortedCards = (day) => {
-    return day.cards.sort((a, b) => {
+    const filteredCards = day.cards.filter((card) => {
+      switch (cardsFilterCondition.value) {
+        case "all":
+          return card;
+        case "filled":
+          return card.clientName !== "";
+        case "empty":
+          return card.clientName === "";
+        default:
+          break;
+      }
+    });
+
+    return filteredCards.sort((a, b) => {
       if (a.timeStampFrom.split(":")[0] < b.timeStampTo.split(":")[0])
         return -1;
       if (a.timeStampFrom.split(":")[0] > b.timeStampTo.split(":")[0]) return 1;
@@ -52,9 +70,10 @@ export const useCardStore = defineStore("cardStore", () => {
     cards,
     selectCard,
     selectedCard,
-    sortedCards,
     addCard,
     deleteCard,
-    getCardById
+    getCardById,
+    sortedCards,
+    setFilterCondition,
   };
 });

@@ -37,7 +37,7 @@ const addNewCard = () => {
     scheduleStore.addNewDay(dayId, choosenDay.value);
     currentDay = scheduleStore.getDayById(dayId);
   } else {
-    currentDay = scheduleStore.days.find(day => day.date === choosenDay.value)
+    currentDay = scheduleStore.days.find((day) => day.date === choosenDay.value);
   }
 
   if (currentDay) {
@@ -53,7 +53,9 @@ const addNewCard = () => {
 
 const removeCard = () => {
   if (window.confirm("Вы точно хотите удалить этот слот?")) {
-    cardStore.deleteCard(cardStore.selectedCard.id);
+    const cardId = cardStore.selectedCard.id;
+    scheduleStore.deleteCardFromDay(cardId);
+    cardStore.deleteCard(cardId);
   }
   hideModal();
 };
@@ -78,7 +80,7 @@ const emit = defineEmits(["isOpen"]);
 </script>
 
 <template>
-  <form v-if="isOpen" @submit.prevent class="modal">
+  <div v-if="isOpen" class="modal">
     <div v-if="cardStore.selectedCard" @click.stop class="modal-body">
       <div class="modal-body-top">
         <input
@@ -149,7 +151,7 @@ const emit = defineEmits(["isOpen"]);
         <button @click="hideModal">Отмена</button>
       </div>
     </div>
-  </form>
+  </div>
 </template>
 
 <style lang="scss" scoped>

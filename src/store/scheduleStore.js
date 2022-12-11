@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
-import { useCardStore } from "./cardStore";
 
 export const useScheduleStore = defineStore("scheduleStore", () => {
   const today = ref(new Date().toDateInputValue());
   const days = ref([]);
   const currentDay = ref("");
+  const daysFilterCondition = ref("all");
 
   const daysInLocalStorage = localStorage.getItem("days");
   if (daysInLocalStorage) {
@@ -20,8 +20,16 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     { deep: true }
   );
 
+  const setFilterCondition = (condition) => {
+    daysFilterCondition.value = condition;
+  };
+
   const getDayById = (dayId) => {
     return days.value.find((day) => day.id === dayId);
+  };
+
+  const getDayByDate = (date) => {
+    return days.value.find((day) => day.date === date);
   };
 
   const addNewDay = (dayId, choosenDay) => {
@@ -36,12 +44,40 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     day.cards.push(card);
   };
 
+  const deleteCardFromDay = (id) => {
+    days.value.forEach((day) => {
+      day.cards = day.cards.filter((card) => card.id !== id);
+      if (day.cards.length === 0) {
+        let dayIdx = days.value.findIndex((i) => i === day);
+        days.value.splice(dayIdx, 1);
+      }
+    });
+  };
+
   const selectDay = (day) => {
     currentDay.value = day;
   };
 
   const sortedDays = computed(() => {
-    return days.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const filteredDays = days.value.filter((day) => {
+      let filteredCards = day.cards.filter((card) => {
+        switch (daysFilterCondition.value) {
+          case "all":
+            return card;
+          case "filled":
+            return card.clientName !== "";
+          case "empty":
+            return card.clientName === "";
+          default:
+            break;
+        }
+      });
+      if (day.cards.length === filteredCards.length) {
+        return day;
+      }
+    });
+
+    return filteredDays.sort((a, b) => new Date(a.date) - new Date(b.date));
   });
 
   return {
@@ -52,6 +88,9 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     sortedDays,
     addNewDay,
     addCardToDay,
+    deleteCardFromDay,
     getDayById,
+    getDayByDate,
+    setFilterCondition,
   };
 });
