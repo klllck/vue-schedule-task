@@ -11,6 +11,9 @@ const modalStore = useModalStore();
 
 <template>
   <div class="schedule">
+    <div class="schedule__info" v-if="scheduleStore.days.length === 0">
+      На данный момент ничего не запланированно
+    </div>
     <DayOfWeek v-for="(day, i) in scheduleStore.sortedDays" :key="i" :day="day" />
     <Modal v-model:isOpen="modalStore.modalVisible" />
   </div>
@@ -19,13 +22,14 @@ const modalStore = useModalStore();
 <style lang="scss" scoped>
 .schedule {
   display: flex;
-  min-height: 100vh;
-  padding: .4rem 1.6rem; 
-}
+  min-height: calc(100vh - 70px);
+  padding: 0.4rem 1.6rem;
 
-.control {
-  position: absolute;
-  top: 0;
-  left: 0;
+  &__info {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: 20px; 
+  }
 }
 </style>

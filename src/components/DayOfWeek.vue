@@ -3,12 +3,17 @@ import Card from "./Card.vue";
 import { ref } from "vue";
 import { useScheduleStore } from "../store/scheduleStore";
 import { useModalStore } from "../store/modalStore";
+import { useAdminStore } from "../store/adminStore";
 
+const adminStore = useAdminStore();
 const scheduleStore = useScheduleStore();
 const modalStore = useModalStore();
 const dayNames = ref(["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]);
 
 const editScheduleForThisDay = () => {
+  if (!adminStore.isAuth) {
+    return;
+  }
   scheduleStore.currentDay = props.day;
   modalStore.showModal();
 };
@@ -28,12 +33,17 @@ const props = defineProps({
       class="day-time"
       @click="editScheduleForThisDay"
       :class="{ today: day === scheduleStore.today }"
+      :style="[adminStore.isAuth ? 'cursor: pointer' : '']"
     >
       <div>{{ dayNames[new Date(day).getDay()] }}</div>
       <div>{{ day }}</div>
     </div>
     <div class="day-wrapper">
-      <Card v-for="card in scheduleStore.scheduleByDay(day)" :key="card.id" :card="card" />
+      <Card
+        v-for="card in scheduleStore.scheduleByDay(day)"
+        :key="card.id"
+        :card="card"
+      />
     </div>
   </div>
 </template>
@@ -55,7 +65,6 @@ const props = defineProps({
     width: 100%;
     height: 80px;
     box-shadow: rgba(0, 0, 0, 0.26) 0px 3px 0px;
-    cursor: pointer;
   }
 
   &-wrapper {

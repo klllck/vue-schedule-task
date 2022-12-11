@@ -1,10 +1,13 @@
 <script setup>
+import { ref } from "vue";
 import { useScheduleStore } from "../store/scheduleStore";
 import { useCardStore } from "../store/cardStore";
-import { ref } from "vue";
+import { useAdminStore } from "../store/adminStore";
 
+const adminStore = useAdminStore();
 const scheduleStore = useScheduleStore();
 const cardStore = useCardStore();
+
 const choosenDay = ref(scheduleStore.today);
 
 const cardData = ref({
@@ -34,7 +37,9 @@ const addNewCard = () => {
 };
 
 const removeCard = () => {
-  cardStore.deleteCard(cardStore.selectedCard.id);
+  if (window.confirm("Вы точно хотите удалить этот слот?")) {
+    cardStore.deleteCard(cardStore.selectedCard.id);
+  }
   hideModal();
 };
 
@@ -96,8 +101,10 @@ const emit = defineEmits(["isOpen"]);
         />
       </div>
       <div class="modal-body-bottom">
-        <button @click="hideModal">Обновать</button>
-        <button @click="removeCard" class="btn-delete">Удалить</button>
+        <button @click="hideModal">Обновить</button>
+        <button @click="removeCard" v-if="adminStore.isAuth" class="btn-delete">
+          Удалить
+        </button>
         <button @click="hideModal">Отмена</button>
       </div>
     </div>
