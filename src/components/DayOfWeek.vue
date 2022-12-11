@@ -35,8 +35,8 @@ const swapCard = (e, targetCard) => {
   cardStore.selectedCard.reasonDesc = temp.reasonDesc;
 };
 
-const check = (len) => {
-  // console.log(len);
+const check = () => {
+  const l = 4
 }
 
 const props = defineProps({
@@ -49,7 +49,7 @@ const props = defineProps({
 </script>
 
 <template>
-  {{ check(cardStore.sortedCards(day)) }}
+  {{ check() }}
   <h2 v-if="!cardStore.sortedCards(day)">Ничего не найдено</h2>
   <div v-else class="day">
     <div

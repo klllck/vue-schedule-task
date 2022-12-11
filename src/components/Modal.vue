@@ -12,15 +12,15 @@ const choosenDay = ref(scheduleStore.today);
 const errorMessage = ref("");
 
 const cardData = ref({
-  dayOfWeek: "",
   timeStampFrom: "",
   timeStampTo: "",
+  dayOfWeek: "",
   clientName: "",
   reasonDesc: "",
 });
 
 const addNewCard = () => {
-  inputDataValidation();
+  inputDataValidation(cardData.value);
   if (errorMessage.value !== "") return;
   cardData.value.dayOfWeek = choosenDay.value;
 
@@ -63,21 +63,31 @@ const hideModal = () => {
   emit("update:isOpen", false);
 };
 
-const inputDataValidation = () => {
+const editCard = () => {
+  inputDataValidation(cardStore.selectedCard)
+  if (errorMessage.value !== "") return;
+
+  hideModal();
+}
+
+const inputDataValidation = (data) => {
+  console.log(data);
   if (
-    cardData.value.timeStampFrom.split(":")[0] * 60 +
-      cardData.value.timeStampFrom.split(":")[1] * 1 >=
-    cardData.value.timeStampTo.split(":")[0] * 60 +
-      cardData.value.timeStampTo.split(":")[1] * 1
+    data.timeStampFrom.split(":")[0] * 60 +
+    data.timeStampFrom.split(":")[1] * 1 >=
+    data.timeStampTo.split(":")[0] * 60 +
+    data.timeStampTo.split(":")[1] * 1
   ) {
     errorMessage.value = "Укажите правильное время!";
+    return;
   }
   if (
-    (cardData.value.clientName === "" && cardData.value.reasonDesc === "") ||
-    (cardData.value.clientName !== "" && cardData.value.reasonDesc !== "")
+    (data.clientName === "" && data.reasonDesc === "") ||
+    (data.clientName !== "" && data.reasonDesc !== "")
   ) {
     errorMessage.value = "";
   } else {
+    console.log('object');
     errorMessage.value = "Все поля должны быть заполнены, либо пустые";
   }
 };
@@ -95,16 +105,9 @@ const emit = defineEmits(["isOpen"]);
 <template>
   <div v-if="isOpen" class="modal">
     <div class="modal__error" v-if="errorMessage !== ''">{{ errorMessage }}</div>
-    <form v-if="cardStore.selectedCard" @submit.prevent="hideModal">
+    <form v-if="cardStore.selectedCard" @submit.prevent="editCard">
       <div @click.stop class="modal-body">
         <div class="modal-body-top">
-          <input
-            type="date"
-            class="modal-input__date"
-            v-model="cardStore.selectedCard.dayOfWeek"
-            :min="scheduleStore.today"
-            :required="false"
-          />
           <div class="modal-body-top-time">
             <input
               v-model="cardStore.selectedCard.timeStampFrom"
@@ -140,7 +143,7 @@ const emit = defineEmits(["isOpen"]);
           <button @click="removeCard" v-if="adminStore.isAuth" class="btn-delete">
             Удалить
           </button>
-          <button @click="hideModal">Отмена</button>
+          <button type="submit">Отмена</button>
         </div>
       </div>
     </form>
@@ -191,7 +194,8 @@ const emit = defineEmits(["isOpen"]);
   position: fixed;
   top: 0;
   left: 0;
-  background-color: rgba(174, 174, 174, 0.6);
+  background-color: rgba(189, 189, 189, 0.8);
+  backdrop-filter: blur(2px);
   height: 100vh;
   width: 100%;
   display: flex;
@@ -200,15 +204,15 @@ const emit = defineEmits(["isOpen"]);
   align-items: center;
 
   &__error {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     text-align: center;
     font-weight: 600;
     background-color: #fff;
     color: crimson;
     padding: 1.4rem;
     width: 490px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
   }
 
   &-body {
@@ -232,6 +236,7 @@ const emit = defineEmits(["isOpen"]);
       &-time {
         display: flex;
         justify-content: center;
+        align-items: center;
         width: 100%;
         gap: 5px;
       }
