@@ -23,7 +23,7 @@ const props = defineProps({
 <template>
   <div class="card" @click="editCard">
     <div class="card-time">{{ card.timeStampFrom }} - {{ card.timeStampTo }}</div>
-    <div v-if="card.clientName === ''" class="card-empty"></div>
+    <div v-if="card.clientName === '' && card.reasonDesc === ''" class="card-empty"></div>
     <div v-else class="card-body">
       <div class="card-body__name">Клиент: {{ card.clientName }}</div>
       <div class="card-body__text">Причина: {{ card.reasonDesc }}</div>

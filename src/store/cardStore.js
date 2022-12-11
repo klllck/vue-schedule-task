@@ -17,10 +17,13 @@ export const useCardStore = defineStore("cardStore", () => {
     },
     { deep: true }
   );
+  
+  const getCardById = (cardId) => {
+    return cards.value.find((card) => card.id === cardId);
+  }
 
   const addCard = (card) => {
-    const cardId = new Date().getGuid();
-    cards.value.push({ id: cardId, ...card });
+    cards.value.push(card);
   };
 
   const deleteCard = (id) => {
@@ -31,8 +34,8 @@ export const useCardStore = defineStore("cardStore", () => {
     selectedCard.value = card;
   };
 
-  const sortedCards = () => {
-    return cards.value.sort((a, b) => {
+  const sortedCards = (day) => {
+    return day.cards.sort((a, b) => {
       if (a.timeStampFrom.split(":")[0] < b.timeStampTo.split(":")[0])
         return -1;
       if (a.timeStampFrom.split(":")[0] > b.timeStampTo.split(":")[0]) return 1;
@@ -52,5 +55,6 @@ export const useCardStore = defineStore("cardStore", () => {
     sortedCards,
     addCard,
     deleteCard,
+    getCardById
   };
 });

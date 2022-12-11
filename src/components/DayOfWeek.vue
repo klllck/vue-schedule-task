@@ -2,11 +2,13 @@
 import Card from "./Card.vue";
 import { ref } from "vue";
 import { useScheduleStore } from "../store/scheduleStore";
+import { useCardStore } from "../store/cardStore";
 import { useModalStore } from "../store/modalStore";
 import { useAdminStore } from "../store/adminStore";
 
-const adminStore = useAdminStore();
 const scheduleStore = useScheduleStore();
+const cardStore = useCardStore();
+const adminStore = useAdminStore();
 const modalStore = useModalStore();
 const dayNames = ref(["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]);
 
@@ -18,11 +20,36 @@ const editScheduleForThisDay = () => {
   modalStore.showModal();
 };
 
+const dragStart = (e, day, card) => {
+  scheduleStore.selectDay(day);
+  cardStore.selectCard(card);
+};
+
+const dragLeave = (e) => {
+  if (e.target.className === "card") {
+    e.target.style.boxShadow = "rgba(0, 0, 0, 0.16) 0px 3px 6px 1px";
+  }
+};
+
+const dragOver = (e) => {
+  if (e.target.className === "card") {
+    e.target.style.boxShadow = "0 6px 3px gray";
+  }
+};
+
+const swapCard = (e, targetCard) => {
+  let temp = {...targetCard};
+  targetCard.clientName = cardStore.selectedCard.clientName;
+  targetCard.reasonDesc = cardStore.selectedCard.reasonDesc;
+  cardStore.selectedCard.clientName = temp.clientName;
+  cardStore.selectedCard.reasonDesc = temp.reasonDesc;
+};
+
 const props = defineProps({
   day: {
-    type: String,
+    type: Object,
     required: true,
-    default: "",
+    default: null,
   },
 });
 </script>
@@ -32,17 +59,22 @@ const props = defineProps({
     <div
       class="day-time"
       @click="editScheduleForThisDay"
-      :class="{ today: day === scheduleStore.today }"
+      :class="{ today: day.date === scheduleStore.today }"
       :style="[adminStore.isAuth ? 'cursor: pointer' : '']"
     >
-      <div>{{ dayNames[new Date(day).getDay()] }}</div>
-      <div>{{ day }}</div>
+      <div>{{ dayNames[new Date(day.date).getDay()] }}</div>
+      <div>{{ day.date }}</div>
     </div>
     <div class="day-wrapper">
       <Card
-        v-for="card in scheduleStore.scheduleByDay(day)"
+        v-for="card in cardStore.sortedCards(day)"
         :key="card.id"
         :card="card"
+        draggable="true"
+        @dragstart="dragStart($event, day, card)"
+        @drop.stop="swapCard($event, card)"
+        @dragleave="dragLeave($event)"
+        @dragover.prevent="dragOver($event)"
       />
     </div>
   </div>

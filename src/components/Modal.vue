@@ -30,9 +30,24 @@ const addNewCard = () => {
   }
 
   cardData.value.dayOfWeek = choosenDay.value;
-  scheduleStore.addNewDay(choosenDay.value);
 
-  cardStore.addCard(cardData.value);
+  let currentDay = null;
+  const dayId = new Date().getGuid();
+  if (!scheduleStore.days.map((a) => a.date).includes(choosenDay.value)) {
+    scheduleStore.addNewDay(dayId, choosenDay.value);
+    currentDay = scheduleStore.getDayById(dayId);
+  } else {
+    currentDay = scheduleStore.days.find(day => day.date === choosenDay.value)
+  }
+
+  if (currentDay) {
+    const cardId = new Date().getGuid();
+    cardStore.addCard({ id: cardId, ...cardData.value });
+    const currentCard = cardStore.getCardById(cardId);
+
+    scheduleStore.addCardToDay(currentDay, currentCard);
+  }
+
   hideModal();
 };
 
@@ -101,7 +116,7 @@ const emit = defineEmits(["isOpen"]);
         />
       </div>
       <div class="modal-body-bottom">
-        <button @click="hideModal">Обновить</button>
+        <button @click="hideModal">Подтвердить</button>
         <button @click="removeCard" v-if="adminStore.isAuth" class="btn-delete">
           Удалить
         </button>
@@ -139,7 +154,7 @@ const emit = defineEmits(["isOpen"]);
 
 <style lang="scss" scoped>
 .modal {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   background-color: rgba(174, 174, 174, 0.6);

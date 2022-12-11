@@ -20,29 +20,38 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     { deep: true }
   );
 
-  const addNewDay = (choosenDay) => {
-    if (!days.value.includes(choosenDay)) {
-      days.value.push(choosenDay);
-    }
+  const getDayById = (dayId) => {
+    return days.value.find((day) => day.id === dayId);
+  };
+
+  const addNewDay = (dayId, choosenDay) => {
+    days.value.push({
+      id: dayId,
+      date: choosenDay,
+      cards: [],
+    });
+  };
+
+  const addCardToDay = (day, card) => {
+    day.cards.push(card);
+  };
+
+  const selectDay = (day) => {
+    currentDay.value = day;
   };
 
   const sortedDays = computed(() => {
-    return days.value.sort((a, b) => new Date(a) - new Date(b));
+    return days.value.sort((a, b) => new Date(a.date) - new Date(b.date));
   });
-
-  const scheduleByDay = (currentDay) => {
-    const cardStore = useCardStore();
-    return cardStore
-      .sortedCards()
-      .filter((card) => card.dayOfWeek === currentDay);
-  };
 
   return {
     today,
     days,
     currentDay,
+    selectDay,
     sortedDays,
     addNewDay,
-    scheduleByDay,
+    addCardToDay,
+    getDayById,
   };
 });

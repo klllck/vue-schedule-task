@@ -16,14 +16,21 @@ const logout = () => {
 
 <template>
   <header class="navbar">
-    <p class="navbar__title">Schedule Task</p>
+    <a href="/">
+      <p class="navbar__title">Schedule Task</p>
+    </a>
     <div class="navbar-pannel">
       <div v-if="adminStore.isAuth" class="navbar-pannel-admin">
         <button @click="modalStore.showModal">Добавить слот</button>
         <button @click="logout">Выйти</button>
       </div>
       <div v-else class="navbar-pannel-user">
-        <input type="password" class="navbar-pannel-user__password" v-model="password" />
+        <input
+          type="password"
+          class="navbar-pannel-user__password"
+          placeholder="Введите пароль..."
+          v-model="password"
+        />
         <button @click="adminStore.login(password)">Войти</button>
       </div>
     </div>
@@ -47,7 +54,6 @@ const logout = () => {
     align-items: center;
     justify-content: space-between;
     width: 320px;
-    // border: 1px solid red;
   }
 
   &-pannel-user {
@@ -56,11 +62,10 @@ const logout = () => {
     align-items: center;
     justify-content: space-between;
     width: 300px;
-    // border: 1px solid red;
 
     &__password {
-      padding: 0.6em 1.2em;
-      font-size: 1rem;
+      padding: 0.5em 1.1em;
+      font-size: 1.05rem;
       width: 60%;
     }
   }
