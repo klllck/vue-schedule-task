@@ -4,8 +4,9 @@ import { ref } from "vue";
 export const useAdminStore = defineStore("adminStore", () => {
   const isAuth = ref(false);
 
+  /// Заглушка для обхода аутентификации с бэкенда
   const login = (password) => {
-    if (password === "asd") {
+    if (password === "admin") {
       isAuth.value = true;
     }
   };

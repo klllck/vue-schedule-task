@@ -80,6 +80,10 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     return filteredDays.sort((a, b) => new Date(a.date) - new Date(b.date));
   });
 
+  const deleteDay = (day) => {
+    days.value = days.value.filter(d => d.id !== day.id)
+  }
+
   return {
     today,
     days,
@@ -88,9 +92,10 @@ export const useScheduleStore = defineStore("scheduleStore", () => {
     sortedDays,
     addNewDay,
     addCardToDay,
+    deleteDay,
     deleteCardFromDay,
     getDayById,
     getDayByDate,
-    setFilterCondition,
+    setFilterCondition
   };
 });

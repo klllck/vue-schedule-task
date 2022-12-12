@@ -71,7 +71,6 @@ const editCard = () => {
 }
 
 const inputDataValidation = (data) => {
-  console.log(data);
   if (
     data.timeStampFrom.split(":")[0] * 60 +
     data.timeStampFrom.split(":")[1] * 1 >=
@@ -87,7 +86,6 @@ const inputDataValidation = (data) => {
   ) {
     errorMessage.value = "";
   } else {
-    console.log('object');
     errorMessage.value = "Все поля должны быть заполнены, либо пустые";
   }
 };

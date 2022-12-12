@@ -39,7 +39,7 @@ export const useCardStore = defineStore("cardStore", () => {
     cardsFilterCondition.value = condition;
   };
 
-  const sortedCards = (day) => {
+  const getSortedCards = (day) => {
     const filteredCards = day.cards.filter((card) => {
       switch (cardsFilterCondition.value) {
         case "all":
@@ -54,13 +54,15 @@ export const useCardStore = defineStore("cardStore", () => {
     });
 
     return filteredCards.sort((a, b) => {
-      if (a.timeStampFrom.split(":")[0] < b.timeStampTo.split(":")[0])
-        return -1;
+      if (a.timeStampFrom.split(":")[0] < b.timeStampTo.split(":")[0]) return -1;
       if (a.timeStampFrom.split(":")[0] > b.timeStampTo.split(":")[0]) return 1;
-
-      if (a.timeStampFrom.split(":")[1] < b.timeStampTo.split(":")[1])
-        return -1;
-      if (a.timeStampFrom.split(":")[1] > b.timeStampTo.split(":")[1]) return 1;
+      
+      if (a.timeStampFrom.split(":")[0] === b.timeStampTo.split(":")[0]) {
+        if (a.timeStampFrom.split(":")[1] < b.timeStampTo.split(":")[1])
+          return -1;
+        if (a.timeStampFrom.split(":")[1] > b.timeStampTo.split(":")[1])
+          return 1;
+      }
 
       return 0;
     });
@@ -73,7 +75,7 @@ export const useCardStore = defineStore("cardStore", () => {
     addCard,
     deleteCard,
     getCardById,
-    sortedCards,
+    getSortedCards,
     setFilterCondition,
   };
 });

@@ -40,7 +40,6 @@ const props = defineProps({
   box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px 1px;
   position: relative;
   cursor: pointer;
-  // background-color: pink;
 
   &-body {
     display: flex;

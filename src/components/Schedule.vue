@@ -13,7 +13,8 @@ const modalStore = useModalStore();
     <div class="schedule__info" v-if="scheduleStore.days.length === 0">
       В данный момент расписание пустое
     </div>
-    <DayOfWeek v-for="day in scheduleStore.sortedDays" :key="day.id" :day="day" />
+    <h2 v-else-if="scheduleStore.sortedDays.length === 0">Ничего не найдено</h2>
+    <DayOfWeek v-else v-for="day in scheduleStore.sortedDays" :key="day.id" :day="day" />
     <Modal v-model:isOpen="modalStore.modalVisible" />
   </div>
 </template>

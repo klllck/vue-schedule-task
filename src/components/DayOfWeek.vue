@@ -1,24 +1,14 @@
 <script setup>
 import Card from "./Card.vue";
-import { ref } from "vue";
 import { useScheduleStore } from "../store/scheduleStore";
 import { useCardStore } from "../store/cardStore";
-import { useModalStore } from "../store/modalStore";
 import { useAdminStore } from "../store/adminStore";
+import { ref } from "vue";
 
 const scheduleStore = useScheduleStore();
 const cardStore = useCardStore();
 const adminStore = useAdminStore();
-const modalStore = useModalStore();
 const dayNames = ref(["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]);
-
-const editScheduleForThisDay = () => {
-  if (!adminStore.isAuth) {
-    return;
-  }
-  scheduleStore.currentDay = props.day;
-  modalStore.showModal();
-};
 
 const dragStart = (e, day, card) => {
   scheduleStore.selectDay(day);
@@ -35,9 +25,11 @@ const swapCard = (e, targetCard) => {
   cardStore.selectedCard.reasonDesc = temp.reasonDesc;
 };
 
-const check = () => {
-  const l = 4
-}
+const removeDay = () => {
+  if (window.confirm("Вы точно хотите удалить расписание на этот день?")) {
+    scheduleStore.deleteDay(props.day);
+  }
+};
 
 const props = defineProps({
   day: {
@@ -49,21 +41,19 @@ const props = defineProps({
 </script>
 
 <template>
-  {{ check() }}
-  <h2 v-if="!cardStore.sortedCards(day)">Ничего не найдено</h2>
+  <h2 v-if="cardStore.getSortedCards(day).length === 0">Ничего не найдено</h2>
   <div v-else class="day">
     <div
       class="day-time"
-      @click="editScheduleForThisDay"
       :class="{ today: day.date === scheduleStore.today }"
-      :style="[adminStore.isAuth ? 'cursor: pointer' : '']"
     >
+      <div v-if="adminStore.isAuth" @click="removeDay" class="day-time__remove">x</div>
       <div>{{ dayNames[new Date(day.date).getDay()] }}</div>
-      <div>{{ day.date }}</div>
+      <div>{{ day.date.split("-").reverse().join("-") }}</div>
     </div>
     <div class="day-wrapper">
       <Card
-        v-for="card in cardStore.sortedCards(day)"
+        v-for="card in cardStore.getSortedCards(day)"
         :key="card.id"
         :card="card"
         draggable="true"
@@ -92,6 +82,24 @@ const props = defineProps({
     width: 100%;
     height: 80px;
     box-shadow: rgba(0, 0, 0, 0.26) 0px 3px 0px;
+    position: relative;
+    background-color: #f0f0f0;
+
+    &__remove {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(238, 33, 74, 0.85);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      font-size: 1.4rem;
+      display: flex;
+      justify-content: center;
+      border-radius: 4px;
+      margin: 0.5rem;
+      cursor: pointer;
+    }
   }
 
   &-wrapper {
@@ -104,7 +112,7 @@ const props = defineProps({
 }
 
 .today {
-  background-color: #e6f4ff;
+  background-color: #daefff;
   color: #1677ff;
 }
 </style>
