@@ -1,7 +1,7 @@
 # Vue3 Schedule Task
 
 ### Приложение для составления и управления расписанием (Vue3 + Pinia)
-## https://schedule-task-vue.netlify.app/
+## https://schedule-task-vue.netlify.app
 
 ## Настройка сборки проекта
 ```bash
